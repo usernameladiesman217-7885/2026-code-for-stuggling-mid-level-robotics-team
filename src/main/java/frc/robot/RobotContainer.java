@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.TrackTag;
 import frc.robot.subsystems.Spindex;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.ClimberSubsystem;
@@ -60,6 +61,13 @@ public class RobotContainer {
   private final Trigger intake_on = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
   private final Trigger shooteroff = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
   private final Trigger climb_lock = new JoystickButton(driver, XboxController.Button.kY.value);
+  
+
+
+  private final Trigger TrackTag = new Trigger(driver::getXButton);
+
+  public TrackTag track = new TrackTag(drivebase);
+
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
@@ -71,6 +79,10 @@ public class RobotContainer {
   }
   private void configureBindings()
   {
+    // Grady Binding 🥳
+    TrackTag.toggleOnTrue(track);
+    TrackTag.toggleOnFalse(new InstantCommand(()->CommandScheduler.getInstance().cancel(track)));
+
     climbTrigger.onTrue(climbtotal);
     climbTriggerno.onTrue(climbdowntotal);
     shooteron.toggleOnTrue(shooter_total);
