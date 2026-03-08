@@ -24,7 +24,7 @@ public class TrackTag extends Command {
   PIDController xController;
   PIDController yController;
   ProfiledPIDController rotationController;
-  Pose2d wantedError = new Pose2d(0, -1, Rotation2d.kZero);
+  Pose2d wantedError = new Pose2d(1.5, 0, Rotation2d.kZero);
   Pose2d currentRobotPosition;
   ChassisSpeeds wantedRobotSpeed;
   State goalState = new State(0, 0, 0, wantedError, 0);
@@ -33,13 +33,12 @@ public class TrackTag extends Command {
     swerve = swerve_;
     addRequirements(swerve);
   }
-
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    xController = new PIDController(0.1, 0, 0);
-    yController = new PIDController(0.1, 0, 0);
-    rotationController = new ProfiledPIDController(0.1, 0, 0, new Constraints(Math.PI, Math.PI));
+    xController = new PIDController(1, 0, 0);
+    yController = new PIDController(0.3, 0, 0);
+    rotationController = new ProfiledPIDController(3, 0, 0, new Constraints(Math.PI, Math.PI));
     controller = new HolonomicDriveController(xController, yController, rotationController);
     controller.setTolerance(new Pose2d(0.1, 0.1, Rotation2d.fromDegrees(5)));
   }
@@ -48,17 +47,18 @@ public class TrackTag extends Command {
   @Override
   public void execute() {
     currentRobotPosition = new Pose2d(
-      LimelightHelpers.getCameraPose3d_TargetSpace("panther").getX(),
-      LimelightHelpers.getCameraPose3d_TargetSpace("panther").getZ(),
-      Rotation2d.fromDegrees(LimelightHelpers.getTX("panther"))
+      -LimelightHelpers.getCameraPose3d_TargetSpace("limelight-panther").getZ(),
+      -LimelightHelpers.getTargetPose3d_CameraSpace("limelight-panther").getX(),
+      Rotation2d.fromDegrees(-LimelightHelpers.getTX("limelight-panther"))
     );
 
     wantedRobotSpeed = controller.calculate(currentRobotPosition, goalState, Rotation2d.kZero);
+    
 
-    //swerve.drive(controller.calculate(currentRobotPosition, goalState, Rotation2d.kZero));
-    SmartDashboard.putNumber("Wanted X Speed", wantedRobotSpeed.vxMetersPerSecond);
-    SmartDashboard.putNumber("Wanted Z Speed", wantedRobotSpeed.vyMetersPerSecond);
-    SmartDashboard.putNumber("Wanted Rotation", wantedRobotSpeed.omegaRadiansPerSecond);
+    swerve.drive(controller.calculate(currentRobotPosition, goalState, Rotation2d.kZero));
+    SmartDashboard.putNumber("Wanted X Speed", currentRobotPosition.getX());
+    SmartDashboard.putNumber("Wanted Z Speed", currentRobotPosition.getY());
+    SmartDashboard.putNumber("Wanted Rotation", currentRobotPosition.getRotation().getRotations());
   }
 
   // Called once the command ends or is interrupted.
@@ -68,6 +68,9 @@ public class TrackTag extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if (controller.atReference()){
+      return true;
+    }
     return false;
   }
 }

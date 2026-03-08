@@ -52,7 +52,7 @@ public class RobotContainer {
   public Command climbdowntotal = new InstantCommand(()->climber.setWantedPosition(0)).alongWith(new InstantCommand(()->pwmHook.setPosition(120)));
   public Command climber_lock = new InstantCommand(()->pwmPin.setPosition(0));
   public Command climber_unlock = new InstantCommand(()->pwmPin.setPosition(0));
-  public Command shooter_total = new InstantCommand(()->spindex.setSpeed(.10)).andThen(new InstantCommand(()->shooter.setSpeed(1)).alongWith(new InstantCommand (()->drivebase.autoAlign())).alongWith(new InstantCommand(()->drivebase.autoRange())).alongWith(new InstantCommand(()->drivebase.drive_limelight())));
+  public Command shooter_total = new InstantCommand(()->spindex.setSpeed(.05)).andThen(new InstantCommand(()->shooter.setSpeed(0.9)).alongWith(new InstantCommand (()->drivebase.autoAlign())).alongWith(new InstantCommand(()->drivebase.autoRange())).alongWith(new InstantCommand(()->drivebase.drive_limelight())));
   public Command shooter_off_total = new InstantCommand(()->spindex.setSpeed(0)).alongWith(new InstantCommand(()->shooter.setSpeed(0)));
   public Command intake_total_on = new InstantCommand(()->intake.setWantedPosition(0));
   private final Trigger climbTrigger = new JoystickButton(driver, XboxController.Button.kA.value);
