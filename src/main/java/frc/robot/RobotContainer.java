@@ -5,33 +5,27 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.SetClimber;
 import frc.robot.commands.TrackTag;
 import frc.robot.subsystems.Spindex;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.ClimberSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import swervelib.SwerveInputStream;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PWM;
 import frc.robot.subsystems.Intake;
 
 import java.io.File;
-import java.time.Instant;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.event.BooleanEvent;
-import edu.wpi.first.wpilibj.event.EventLoop;
-
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -46,12 +40,10 @@ public class RobotContainer {
   ShooterSubsystem shooter = new ShooterSubsystem();
   Spindex spindex = new Spindex();
   Intake intake = new Intake();
-  PWM pwmHook = new PWM(0);
-  PWM pwmPin = new PWM(1);
-  public Command climbtotal = new InstantCommand(()-> pwmPin.setPosition(0)).andThen(new InstantCommand(()->climber.setWantedPosition(0)).alongWith(new InstantCommand(()->pwmHook.setPosition(45))));
-  public Command climbdowntotal = new InstantCommand(()->climber.setWantedPosition(0)).alongWith(new InstantCommand(()->pwmHook.setPosition(120)));
-  public Command climber_lock = new InstantCommand(()->pwmPin.setPosition(0));
-  public Command climber_unlock = new InstantCommand(()->pwmPin.setPosition(0));
+  public SequentialCommandGroup climbtotal = new InstantCommand(()-> climber.pwmPin.setPosition(0)).andThen(new SetClimber(climber, 24.5).alongWith(new InstantCommand(()->climber.pwmHook.setPosition(45))));
+  public SequentialCommandGroup climbdowntotal = new SetClimber(climber, 0).alongWith(new InstantCommand(()->climber.pwmHook.setPosition(120))).andThen(new InstantCommand(()->climber.pwmPin.setPosition(45)));
+  public Command climber_lock = new InstantCommand(()->climber.pwmPin.setPosition(0));
+  public Command climber_unlock = new InstantCommand(()->climber.pwmPin.setPosition(0));
   public Command shooter_total = new InstantCommand(()->spindex.setSpeed(.05)).andThen(new InstantCommand(()->shooter.setSpeed(0.9)).alongWith(new InstantCommand (()->drivebase.autoAlign())).alongWith(new InstantCommand(()->drivebase.autoRange())).alongWith(new InstantCommand(()->drivebase.drive_limelight())));
   public Command shooter_off_total = new InstantCommand(()->spindex.setSpeed(0)).alongWith(new InstantCommand(()->shooter.setSpeed(0)));
   public Command intake_total_on = new InstantCommand(()->intake.setWantedPosition(0));

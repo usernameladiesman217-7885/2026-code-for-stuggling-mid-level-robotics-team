@@ -31,6 +31,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class ClimberSubsystem extends SubsystemBase {
+
+   PWM pwmHook = new PWM(0);
+   PWM pwmPin = new PWM(1);
+
    public SparkMax motor1 = new SparkMax(9, MotorType.kBrushless);
    public SparkMax motor2 = new SparkMax(10, MotorType.kBrushless);
    public PIDController controller = new PIDController(0.09, 0.24, 0.0);
